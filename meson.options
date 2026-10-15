@@ -1,0 +1,2 @@
+# browser-python: 的の numpy のヘッダーの置き場（→ pandas/meson.build の incdir_numpy）
+option('numpy-include', type: 'string', value: '')

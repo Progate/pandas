@@ -1,8 +1,15 @@
-incdir_numpy = run_command(
-    py,
-    [
-        '-c',
-        '''
+# browser-python: クロスビルドでは的の numpy のヘッダーを使わなければならない。
+# 素の道は `py` に numpy を import させて `np.get_include()` を聞くものだが、その `py` は
+# ホストの python なので、返ってくるのはホスト（64 bit）の numpy の include である。
+# `_numpyconfig.h` の NPY_SIZEOF_LONG などは環境ごとに違うので、そのまま使うと
+# 「コンパイルは通るのに配列の中身がずれる」形で壊れる。
+incdir_numpy = get_option('numpy-include')
+if incdir_numpy == ''
+    incdir_numpy = run_command(
+        py,
+        [
+            '-c',
+            '''
 import os
 import numpy as np
 try:
@@ -14,9 +21,10 @@ except Exception:
     incdir = np.get_include()
 print(incdir)
      ''',
-    ],
-    check: true,
-).stdout().strip()
+        ],
+        check: true,
+    ).stdout().strip()
+endif
 
 inc_np = include_directories(incdir_numpy)
 inc_pd = include_directories('_libs/include')
